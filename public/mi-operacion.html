@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Operación - Rutas Asignadas</title>
+
+  <!-- CSS de DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .volver-btn:hover {
+      background-color: #4dd96d;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      color: var(--text-light);
+    }
+
+    header p {
+      font-size: 1rem;
+      color: var(--text-lighter);
+    }
+
+    .container {
+      max-width: 95%;
+      margin: auto;
+      padding: 30px 10px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    table.dataTable {
+      width: 100% !important;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    table.dataTable th,
+    table.dataTable td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #6be079;
+    }
+
+    table.dataTable thead th {
+      background-color: var(--accent);
+      color: black;
+    }
+
+    .dt-buttons .dt-button {
+      background-color: var(--accent) !important;
+      color: black !important;
+      border: none;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+  </style>
+</head>
+<body>
+
+  <a href="menu-conductor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+  <header>
+    <h1><i class="fas fa-road"></i> Mi Operación</h1>
+    <p>Rutas asignadas al conductor autenticado</p>
+  </header>
+
+  <div class="container">
+    <table id="tablaRutas" class="display nowrap">
+      <thead>
+        <tr>
+          <th>Ruta</th>
+          <th>Hora de salida</th>
+          <th>Fecha</th>
+          <th>Notas adicionales</th>
+        </tr>
+      </thead>
+      <tbody>
+    
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    © 2025 Plataforma de Transporte - Mi Operación
+  </footer>
+
+  <!-- JS DataTables -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+  <script>
+    $(document).ready(async function () {
+      try {
+        const res = await fetch('/api/rutas-conductor');
+        const data = await res.json();
+
+        const tbody = $('#tablaRutas tbody');
+        tbody.empty();
+
+        data.forEach(r => {
+          const fila = `
+            <tr>
+              <td>${r.ruta || ''}</td>
+              <td>${r.horaSalida || ''}</td>
+              <td>${new Date(r.fecha).toLocaleDateString()}</td>
+              <td>${r.notasAdicionales || 'Sin notas'}</td>
+            </tr>
+          `;
+          tbody.append(fila);
+        });
+
+        $('#tablaRutas').DataTable({
+          scrollX: true,
+          responsive: true,
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+          },
+          dom: 'Bfrtip',
+          buttons: ['excelHtml5', 'pdfHtml5', 'print']
+        });
+
+      } catch (err) {
+        console.error("❌ Error al cargar rutas:", err);
+        $('.container').html('<p>Error al cargar rutas asignadas.</p>');
+      }
+    });
+  </script>
+</body>
+</html>

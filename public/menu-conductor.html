@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Plataforma - Conductor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 90px;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .sidebar.expanded {
+      width: 250px;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #6be079;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      color: black;
+      z-index: 10;
+    }
+
+    .menu-header {
+      padding: 60px 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-info {
+      text-align: center;
+    }
+
+    .profile-info h3 {
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .profile-info p {
+      font-size: 12px;
+      color: var(--text-lighter);
+    }
+
+    .menu-items {
+      padding: 20px 0;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .menu-item i {
+      font-size: 22px;
+      color: var(--text-light);
+      margin-right: 20px;
+    }
+
+    .menu-item span {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .sidebar.expanded .menu-item span {
+      opacity: 1;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--text-light);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .menu-item:hover::before {
+      transform: translateX(0);
+    }
+
+    .logout-item {
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
+    }
+
+    .logout-item i {
+      color: #e03e3e;
+    }
+
+    .logout-item:hover::before {
+      background: #e03e3e;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-icon {
+      font-size: 30px;
+      color: var(--text-light);
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-lighter);
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+      }
+
+      .sidebar.expanded {
+        width: 100%;
+      }
+
+      .menu-items {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .menu-item {
+        flex: 1 0 120px;
+        justify-content: center;
+      }
+
+      .menu-item span {
+        display: none;
+      }
+
+      .sidebar.expanded .menu-item span {
+        display: inline;
+      }
+
+      .profile-info {
+        display: none;
+      }
+
+      .sidebar.expanded .profile-info {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar" id="sidebar">
+      <button class="toggle-btn" onclick="toggleMenu()">☰</button>
+      <div class="menu-header">
+        <div class="profile-info">
+          <h3 id="nombre-usuario">Cargando...</h3>
+          <p>Conductor</p>
+        </div>
+      </div>
+
+      <div class="menu-items">
+        <a href="mi-operacion.html" class="menu-item">
+          <i class="fas fa-info-circle"></i>
+          <span>Rutas asignadas</span>
+        </a>
+        <a href="revision.html" class="menu-item">
+          <i class="fas fa-clipboard-check"></i>
+          <span>Revisión</span>
+        </a>
+        <a href="zona-aprendizaje.html" class="menu-item">
+          <i class="fas fa-graduation-cap"></i>
+          <span>Zona de Aprendizaje</span>
+        </a>
+        <a href="login.html" class="menu-item logout-item">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar sesión</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h1>Menú principal</h1>
+        <p>Bienvenido al sistema de gestión integral</p>
+      </header>
+
+      <div class="dashboard-cards">
+        <a href="mi-operacion.html" style="text-decoration: none; color: inherit;">
+          <div class="dashboard-card">
+            <div class="card-icon"><i class="fas fa-info-circle"></i></div>
+            <h3 class="card-title">Rutas asignadas</h3>
+            <p class="card-desc">Gestiona tus actividades diarias</p>
+          </div>
+        </a>
+        <a href="revision.html" style="text-decoration: none; color: inherit;">
+          <div class="dashboard-card">
+            <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
+            <h3 class="card-title">Revisión Preoperativa</h3>
+            <p class="card-desc">Inspecciones preoperativas de tu vehículo</p>
+          </div>
+        </a>
+        <a href="zona-aprendizaje.html" style="text-decoration: none; color: inherit;">
+          <div class="dashboard-card">
+            <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
+            <h3 class="card-title">Zona de Aprendizaje</h3>
+            <p class="card-desc">Recursos, manuales y videos para tu capacitación</p>
+          </div>
+        </a>
+      </div>
+
+      <footer>
+        <p>Creado por John Uribe</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('expanded');
+    }
+
+    fetch('/api/usuario')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('nombre-usuario').textContent = data.nombre;
+        } else {
+          document.getElementById('nombre-usuario').textContent = 'Supervisor';
+        }
+      })
+      .catch(err => {
+        document.getElementById('nombre-usuario').textContent = 'Supervisor';
+      });
+  </script>
+</body>
+</html>

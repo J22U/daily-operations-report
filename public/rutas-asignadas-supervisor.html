@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rutas Asignadas</title>
+
+  <!-- Íconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+    header {
+      text-align: center;
+      padding: 30px 20px 10px;
+      background-color: rgba(0,0,0,0.2);
+    }
+    header h1 { color: #6be079; margin-bottom: 10px; }
+    .volver-btn {
+      position: absolute; top: 15px; left: 15px;
+      background-color: #6be079;
+      color: black; border: none;
+      padding: 10px 15px; border-radius: 8px;
+      font-weight: bold; text-decoration: none;
+    }
+    .container {
+      max-width: 95%;
+      margin: auto;
+      padding: 30px 10px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow: visible;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      color: white;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #4dd96d;
+      text-align: center;
+      white-space: normal;
+    }
+    th {
+      background-color: #6be079;
+      color: black;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #cce7b3;
+      margin-top: 30px;
+    }
+    .dt-buttons .dt-button {
+      background-color: #6be079 !important;
+      color: black !important;
+      border: none;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      table, th, td, tr { font-size: 12px; }
+      header h1 { font-size: 1.5rem; }
+      .volver-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      .container { padding: 20px 5px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="menu-supervisor.html" class="volver-btn">
+    <i class="fas fa-arrow-left"></i> Volver
+  </a>
+
+  <header>
+    <h1><i class="fas fa-route"></i> Rutas Asignadas</h1>
+    <p>Historial completo de asignaciones realizadas</p>
+  </header>
+
+  <div class="container">
+    <table id="tablaRutas" class="display nowrap">
+      <thead>
+        <tr>
+          <th>Conductor</th>
+          <th>Ruta</th>
+          <th>Hora de Salida</th>
+          <th>Fecha</th>
+          <th>Notas Adicionales</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>
+    © 2025 DOR - Rutas Asignadas
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+  <script>
+    $(document).ready(async function () {
+      try {
+        const res = await fetch('/api/todas-rutas');
+        const rutas = await res.json();
+        const filas = rutas.map(r => `
+          <tr>
+            <td>${r.nombreConductor}</td>
+            <td>${r.ruta}</td>
+            <td>${r.horaSalida}</td>
+            <td>${r.fecha.split('T')[0]}</td>
+            <td>${r.notasAdicionales || ''}</td>
+          </tr>
+        `).join('');
+        $('#tablaRutas tbody').html(filas);
+
+        $('#tablaRutas').DataTable({
+          autoWidth: true,
+          scrollX: false,
+          responsive: true,
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+          },
+          dom: 'Bfrtip',
+          buttons: [
+            { extend: 'excelHtml5', title: 'Rutas_Asignadas' },
+            { extend: 'pdfHtml5', title: 'Rutas_Asignadas', orientation: 'landscape', pageSize: 'A4' },
+            { extend: 'print', title: 'Rutas Asignadas' }
+          ],
+          columnDefs: [
+            { width: '20%', targets: 0 },
+            { width: '25%', targets: 1 },
+            { width: '15%', targets: 2 },
+            { width: '15%', targets: 3 },
+            { width: '25%', targets: 4 }
+          ]
+        });
+      } catch (error) {
+        console.error("❌ Error al cargar rutas:", error);
+        $('#tablaRutas').after('<p style="color:red">No se pudieron cargar las rutas.</p>');
+      }
+    });
+  </script>
+
+</body>
+</html>

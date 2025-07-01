@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zona de Aprendizaje</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .volver-btn:hover {
+      background-color: #4dd96d;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: var(--text-light);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    section h2 {
+      color: var(--accent);
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 5px;
+    }
+
+    .videos, .manuales, .enlaces {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 160px;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .manual, .link {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      border-left: 5px solid var(--accent);
+      transition: all 0.3s ease;
+    }
+
+    .manual:hover, .link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.02);
+    }
+
+    .manual a, .link a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .manual i, .link i {
+      margin-right: 10px;
+      color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      section h2 {
+        font-size: 1.5rem;
+      }
+
+      .volver-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="menu-conductor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+  <header>
+    <h1><i class="fas fa-graduation-cap"></i> Zona de Aprendizaje</h1>
+    <p>Capacítate y mejora tus habilidades como conductor</p>
+  </header>
+
+  <div class="container">
+    <!-- Sección de Videos -->
+    <section>
+      <h2><i class="fas fa-video"></i> Videos de Capacitación</h2>
+      <div class="videos">
+        <iframe src="https://www.youtube.com/embed/qU2MNabZlN4" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/7u9oD8-n53Q" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/KZ0vY0tWgAQ" allowfullscreen></iframe>
+      </div>
+    </section>
+
+    <!-- Sección de Manuales -->
+    <section>
+      <h2><i class="fas fa-book"></i> Manuales Descargables</h2>
+      <div class="manuales">
+        <div class="manual"><i class="fas fa-file-pdf"></i><a href="manuales/manual_bus.pdf" download> Manual del Bus</a></div>
+        <div class="manual"><i class="fas fa-file-pdf"></i><a href="manuales/protocolo_seguridad.pdf" download> Protocolo de Seguridad</a></div>
+        <div class="manual"><i class="fas fa-file-pdf"></i><a href="manuales/mantenimiento_preventivo.pdf" download> Mantenimiento Preventivo</a></div>
+      </div>
+    </section>
+
+    <!-- Sección de Enlaces -->
+    <section>
+      <h2><i class="fas fa-link"></i> Enlaces Útiles</h2>
+      <div class="enlaces">
+        <div class="link"><i class="fas fa-external-link-alt"></i><a href="https://www.mintransporte.gov.co/" target="_blank"> Ministerio de Transporte</a></div>
+        <div class="link"><i class="fas fa-external-link-alt"></i><a href="https://www.runt.com.co/" target="_blank"> RUNT - Registro Único Nacional</a></div>
+        <div class="link"><i class="fas fa-external-link-alt"></i><a href="https://www.invias.gov.co/" target="_blank"> INVIAS</a></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>© 2025 Plataforma de Transporte - Zona de Aprendizaje</p>
+  </footer>
+</body>
+</html>

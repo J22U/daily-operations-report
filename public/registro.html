@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Usuario</title>
+
+  <!-- Íconos y SweetAlert2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: #fff;
+      overflow-y: auto;
+    }
+
+    .main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 1000px;
+      overflow: hidden;
+    }
+
+    .left, .right {
+      flex: 1;
+      min-width: 300px;
+      padding: 40px;
+    }
+
+    .left {
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .left img {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+
+    .left h1 {
+      font-size: 24px;
+      text-align: center;
+      color: #9bf39b;
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .right h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #9bf39b;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, select {
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff11;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    select option {
+      background: #222;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-label input {
+      margin-right: 10px;
+    }
+
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 30px;
+      background-color: #0632ad;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #0a59cf;
+    }
+
+    .input-error {
+      border: 2px solid red;
+      background-color: #ffe5e5;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .right {
+        padding: 30px 20px;
+      }
+
+      input, select {
+        font-size: 14px;
+      }
+
+      .btn {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .left img {
+        width: 120px;
+      }
+
+      .left h1, .right h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main">
+    <div class="container">
+      <div class="left">
+        <img src="imagenes/Logo2.png" alt="Logo de la empresa">
+        <h1>Bienvenido al Registro</h1>
+      </div>
+      <div class="right">
+        <h2>Crear Cuenta Nueva</h2>
+        <form id="registrationForm">
+          <input type="text" name="nombre" placeholder="Nombre" required />
+          <input type="text" name="apellidos" placeholder="Apellidos" required />
+          <input type="email" name="correo" placeholder="Correo Electrónico" required />
+          <input type="date" name="fechaNacimiento" required />
+          <select name="rol" required>
+            <option value="" disabled selected>Selecciona tu cargo</option>
+            <option value="Supervisor">Supervisor</option>
+            <option value="Tecnico">Técnico de mantenimiento</option>
+            <option value="Conductor">Conductor</option>
+            <option value="Compras">Compras</option>
+          </select>
+          <input type="password" name="contraseña" placeholder="Contraseña" required />
+          <input type="password" name="confirmar_contraseña" placeholder="Confirmar Contraseña" required />
+          <small style="color: #ccc; margin-bottom: 10px;">
+            Debe tener al menos 8 caracteres, una mayúscula y un número.
+          </small>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="terminos_condiciones" required />
+            Acepto los términos y condiciones
+          </label>
+
+          <input type="submit" class="btn" value="Registrar" />
+          <button type="button" class="btn" onclick="window.location.href='login.html'">Regresar al Inicio</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("registrationForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const nombre = form.nombre.value.trim();
+      const apellidos = form.apellidos.value.trim();
+      const correo = form.correo.value.trim();
+      const fechaNacimiento = form.fechaNacimiento.value;
+      const rol = form.rol.value;
+      const contraseña = form.contraseña.value;
+      const confirmar = form.confirmar_contraseña.value;
+      const acepta = document.getElementById('terminos_condiciones').checked;
+
+      const regexPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+      if (!regexPass.test(contraseña)) {
+        return Swal.fire('Contraseña inválida', 'Debe tener al menos 8 caracteres, una mayúscula y un número.', 'error');
+      }
+
+      if (contraseña !== confirmar) {
+        return Swal.fire('Contraseñas no coinciden', 'Verifica que ambas contraseñas sean iguales.', 'error');
+      }
+
+      if (!acepta) {
+        return Swal.fire('Términos no aceptados', 'Debes aceptar los términos y condiciones.', 'warning');
+      }
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nombre, apellidos, correo, fechaNacimiento, rol, contraseña })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Registro exitoso!',
+            text: 'Tu cuenta ha sido creada correctamente.',
+            confirmButtonText: 'Iniciar sesión'
+          }).then(() => {
+            window.location.href = 'login.html';
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'No se pudo completar el registro.'
+          });
+        }
+      } catch (error) {
+        console.error('Error de conexión:', error);
+        Swal.fire('Error de conexión', 'No se pudo contactar con el servidor.', 'error');
+      }
+    });
+  </script>
+
+</body>
+</html>

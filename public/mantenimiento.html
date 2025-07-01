@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mantenimiento Programado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .volver-btn:hover {
+      background-color: #4dd96d;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: var(--text-light);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    .mantenimiento-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(5px);
+      border-left: 5px solid var(--accent);
+      transition: all 0.3s ease;
+    }
+
+    .mantenimiento-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .mantenimiento-card h3 {
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .mantenimiento-card p {
+      margin: 5px 0;
+    }
+
+    .estado {
+      font-weight: bold;
+      color: #ffd369;
+    }
+
+    .completado {
+      font-weight: bold;
+      color: #90ee90;
+    }
+
+    .btn-completar {
+      margin-top: 10px;
+      background: var(--accent);
+      color: black;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .btn-completar:hover {
+      background: #4dd96d;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+      margin-top: 30px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      .volver-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="menu-conductor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+  <header>
+    <h1><i class="fas fa-tools"></i> Mantenimientos Programados</h1>
+    <p>Revisa el estado de tus mantenimientos asignados</p>
+  </header>
+
+  <div class="container">
+    <!-- Ejemplo de mantenimiento programado -->
+    <div class="mantenimiento-card">
+      <h3>Mantenimiento Preventivo</h3>
+      <p><strong>Fecha Programada:</strong> 2025-06-25</p>
+      <p><strong>Tipo:</strong> Cambio de aceite y revisión de frenos</p>
+      <p><strong>Responsable:</strong> Supervisor Carlos Mendoza</p>
+      <p><strong>Estado:</strong> <span class="estado">Pendiente</span></p>
+      <button class="btn-completar" onclick="completarMantenimiento(this)">Marcar como completado</button>
+    </div>
+
+    <div class="mantenimiento-card">
+      <h3>Revisión Técnica</h3>
+      <p><strong>Fecha Programada:</strong> 2025-07-01</p>
+      <p><strong>Tipo:</strong> Revisión general de suspensión</p>
+      <p><strong>Responsable:</strong> Supervisor Laura Torres</p>
+      <p><strong>Estado:</strong> <span class="estado">Pendiente</span></p>
+      <button class="btn-completar" onclick="completarMantenimiento(this)">Marcar como completado</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Plataforma de Transporte - Mantenimientos</p>
+  </footer>
+
+  <script>
+    function completarMantenimiento(button) {
+      const estadoSpan = button.parentElement.querySelector('.estado');
+      estadoSpan.textContent = 'Completado';
+      estadoSpan.classList.remove('estado');
+      estadoSpan.classList.add('completado');
+      button.remove();
+    }
+  </script>
+
+</body>
+</html>

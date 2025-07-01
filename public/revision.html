@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Revisión Preoperativa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .volver-btn:hover {
+      background-color: #4dd96d;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      color: var(--text-light);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    form {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: var(--text-light);
+    }
+
+    input, select, textarea {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      width: 100%;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    fieldset {
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+    }
+
+    legend {
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: bold;
+      padding: 0 10px;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4dd96d;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.6rem;
+      }
+
+      .volver-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<a href="menu-conductor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+<header>
+  <h1><i class="fas fa-clipboard-check"></i> Revisión Preoperativa Completa</h1>
+  <p>Revisión detallada del estado del bus antes de operación</p>
+</header>
+
+<div class="container">
+  <form id="formRevision">
+    <div class="form-group">
+      <label for="placa">Placa del Bus:</label>
+      <input type="text" id="placa" name="placa" required />
+    </div>
+
+    <div class="form-group">
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" name="fecha" required />
+    </div>
+
+    <div class="form-group">
+      <label for="conductor">Nombre del Conductor:</label>
+      <input type="text" id="conductor" name="conductor" required />
+    </div>
+
+    <fieldset>
+      <legend>Cabina</legend>
+      <div class="form-group">
+        <label for="espejos">Espejos retrovisores:</label>
+        <select id="espejos" name="espejos" required>
+          <option value="">Seleccione</option>
+          <option value="Buenos">Buenos</option>
+          <option value="Ajuste necesario">Ajuste necesario</option>
+          <option value="Rotos o faltantes">Rotos o faltantes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="limpiaparabrisas">Limpiaparabrisas:</label>
+        <select id="limpiaparabrisas" name="limpiaparabrisas" required>
+          <option value="">Seleccione</option>
+          <option value="Funciona bien">Funciona bien</option>
+          <option value="Falla parcial">Falla parcial</option>
+          <option value="No funciona">No funciona</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Sistema Eléctrico</legend>
+      <div class="form-group">
+        <label for="luces">Luces exteriores:</label>
+        <select id="luces" name="luces" required>
+          <option value="">Seleccione</option>
+          <option value="Funcionan correctamente">Funcionan correctamente</option>
+          <option value="Algunas fallas">Algunas fallas</option>
+          <option value="No funcionan">No funcionan</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="pito">pito (pito):</label>
+        <select id="pito" name="pito" required>
+          <option value="">Seleccione</option>
+          <option value="Funciona">Funciona</option>
+          <option value="Débil">Débil</option>
+          <option value="No funciona">No funciona</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Motor y Niveles</legend>
+      <div class="form-group">
+        <label for="aceite">Nivel de aceite:</label>
+        <select id="aceite" name="aceite" required>
+          <option value="">Seleccione</option>
+          <option value="Adecuado">Adecuado</option>
+          <option value="Bajo">Bajo</option>
+          <option value="No revisado">No revisado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="refrigerante">Nivel de refrigerante:</label>
+        <select id="refrigerante" name="refrigerante" required>
+          <option value="">Seleccione</option>
+          <option value="Adecuado">Adecuado</option>
+          <option value="Bajo">Bajo</option>
+          <option value="No revisado">No revisado</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Seguridad</legend>
+      <div class="form-group">
+        <label for="extintor">Extintor:</label>
+        <select id="extintor" name="extintor" required>
+          <option value="">Seleccione</option>
+          <option value="Presente y vigente">Presente y vigente</option>
+          <option value="Presente pero vencido">Presente pero vencido</option>
+          <option value="No disponible">No disponible</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="botiquin">Botiquín:</label>
+        <select id="botiquin" name="botiquin" required>
+          <option value="">Seleccione</option>
+          <option value="Completo">Completo</option>
+          <option value="Incompleto">Incompleto</option>
+          <option value="No disponible">No disponible</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Exterior</legend>
+      <div class="form-group">
+        <label for="neumaticos">Neumáticos:</label>
+        <select id="neumaticos" name="neumaticos" required>
+          <option value="">Seleccione</option>
+          <option value="Buen estado">Buen estado</option>
+          <option value="Desgaste medio">Desgaste medio</option>
+          <option value="Desgastados">Desgastados</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="carroceria">Carrocería:</label>
+        <select id="carroceria" name="carroceria" required>
+          <option value="">Seleccione</option>
+          <option value="Sin daños">Sin daños</option>
+          <option value="Rayones">Rayones</option>
+          <option value="Golpes o abolladuras">Golpes o abolladuras</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <div class="form-group">
+      <label for="observaciones">Observaciones adicionales:</label>
+      <textarea id="observaciones" name="observaciones" rows="4" placeholder="Detalles adicionales..."></textarea>
+    </div>
+
+    <button type="submit">Enviar Revisión</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('formRevision').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('/guardar-revision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Guardado exitosamente!',
+          text: 'La revisión fue registrada correctamente.',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          window.location.href = 'revision.html';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Hubo un problema al guardar la revisión'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de red',
+        text: 'No se pudo conectar con el servidor'
+      });
+      console.error(error);
+    }
+  });
+</script>
+
+<footer>
+  <p>© 2025 Plataforma de Transporte - Revisión Preoperativa</p>
+</footer>
+
+</body>
+</html>

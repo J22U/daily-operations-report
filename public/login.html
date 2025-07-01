@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio de Sesión</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+    body, html {
+      height: 100%;
+      background: linear-gradient(to right, #243b55, #141e30);
+      color: #fff;
+    }
+
+    .main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 30px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      background-color: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.4);
+      overflow: hidden;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .info {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .info img {
+      width: 200px;
+      margin-bottom: 20px;
+    }
+
+    .info h2 {
+      font-size: 32px;
+      color: #9bf39b;
+    }
+
+    .form {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form h2 {
+      font-size: 28px;
+      margin-bottom: 25px;
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 40px 14px 15px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff11;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .input-group i {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    .form a {
+      text-align: center;
+      display: block;
+      margin-top: -5px;
+      margin-bottom: 10px;
+      color: #9bf39b;
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .inputs input[type="submit"],
+    .inputs input[type="button"] {
+      background: #0632ad;
+      color: #fff;
+      padding: 14px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .inputs input[type="submit"]:hover,
+    .inputs input[type="button"]:hover {
+      background: #0a59cf;
+    }
+
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .info, .form { padding: 20px; text-align: center; }
+      .info img { margin: 0 auto 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main">
+  <div class="container">
+
+    <div class="info">
+      <img src="imagenes/Logo2.png" alt="Logo de la empresa">
+      <h2>Bienvenido a la Plataforma</h2>
+      <p>Accede para gestionar tu operación diaria con eficiencia y seguridad.</p>
+    </div>
+
+    <form class="form" id="formLogin">
+      <h2>Iniciar Sesión</h2>
+      <div class="inputs">
+        <div class="input-group">
+          <input type="email" id="username" name="username" required placeholder="Correo electrónico" />
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" name="password" required placeholder="Contraseña" />
+          <i class="fas fa-lock"></i>
+        </div>
+        <a onclick="abrirModal()">¿Olvidaste tu contraseña?</a>
+        <input type="submit" value="INICIAR SESIÓN">
+        <input type="button" value="CREAR UNA CUENTA" onclick="registrarse()">
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  document.getElementById("formLogin").addEventListener("submit", function (e) {
+    e.preventDefault();
+    iniciarSesion();
+  });
+
+  function registrarse() {
+    window.location.href = "registro.html";
+  }
+
+  async function iniciarSesion() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const rol = data.rol.toLowerCase();
+
+        if (rol === "conductor") {
+          window.location.href = "menu-conductor.html";
+        } else if (rol === "supervisor") {
+          window.location.href = "menu-supervisor.html";
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Rol no reconocido',
+            text: `Rol desconocido: ${data.rol}`
+          });
+        }
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de inicio de sesión',
+          text: data.message || 'Correo o contraseña incorrectos'
+        });
+      }
+    } catch (error) {
+      console.error("❌ Error de conexión:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'No se pudo conectar con el servidor.'
+      });
+    }
+  }
+
+  function abrirModal() {
+    Swal.fire({
+      icon: 'info',
+      title: 'Recuperación de contraseña',
+      text: 'Esta funcionalidad estará disponible pronto.',
+      confirmButtonColor: '#0632ad'
+    });
+  }
+</script>
+
+</body>
+</html>

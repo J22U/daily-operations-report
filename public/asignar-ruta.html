@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asignar Ruta</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary: #0f2027;
+      --secondary: #203a43;
+      --accent: #6be079;
+      --text-light: #9bf39b;
+      --text-lighter: #cce7b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+      color: white;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .volver-btn:hover {
+      background-color: #4dd96d;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      color: var(--text-light);
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    form {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: var(--text-light);
+    }
+
+    input, select, textarea {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      width: 100%;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: black;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4dd96d;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-lighter);
+      background-color: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.6rem;
+      }
+
+      .volver-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="menu-supervisor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+  <header>
+    <h1><i class="fas fa-road"></i> Asignar Ruta al Conductor</h1>
+    <p>Planifica la ruta diaria para cada conductor</p>
+  </header>
+
+  <div class="container">
+    <form id="formAsignarRuta">
+      <div class="form-group">
+        <label for="conductorSelect">Conductor:</label>
+        <select id="conductorSelect" name="idConductor" required>
+          <option value="">Seleccione un conductor</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="ruta">Ruta asignada:</label>
+        <input type="text" id="ruta" name="ruta" required>
+      </div>
+
+      <div class="form-group">
+        <label for="horaSalida">Hora de salida:</label>
+        <input type="time" id="horaSalida" name="horaSalida" required>
+      </div>
+
+      <div class="form-group">
+        <label for="fecha">Fecha de operación:</label>
+        <input type="date" id="fecha" name="fecha" required>
+      </div>
+
+      <div class="form-group">
+        <label for="notasAdicionales">Notas adicionales:</label>
+        <textarea id="notasAdicionales" name="notasAdicionales" rows="3" placeholder="Observaciones, puntos clave, etc."></textarea>
+      </div>
+
+      <button type="submit">Asignar Ruta</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>© 2025 DOR - Asignación de rutas</p>
+  </footer>
+
+  <script>
+    // Cargar lista de conductores
+    async function cargarConductores() {
+      try {
+        const res = await fetch('/api/conductores');
+        const data = await res.json();
+        const select = document.getElementById('conductorSelect');
+
+        data.forEach(conductor => {
+          const option = document.createElement('option');
+          option.value = conductor.IdU;
+          option.textContent = conductor.nombre + ' ' + conductor.apellidos;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('❌ Error al cargar conductores:', error);
+      }
+    }
+
+    // Enviar formulario con SweetAlert
+    document.getElementById('formAsignarRuta').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch('/api/asignar-tarea', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Ruta asignada!',
+            text: 'La ruta fue asignada exitosamente al conductor.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            window.location.href = 'menu-supervisor.html';
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: result.message || 'Hubo un problema al asignar la ruta'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de red',
+          text: 'No se pudo conectar con el servidor'
+        });
+        console.error(error);
+      }
+    });
+
+    // Ejecutar al cargar
+    document.addEventListener('DOMContentLoaded', cargarConductores);
+  </script>
+</body>
+</html>

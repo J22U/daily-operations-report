@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Conductores</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 10px 15px;
+      background-color: rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      color: #6be079;
+    }
+
+    .volver-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: #6be079;
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 95%;
+      margin: auto;
+      padding: 30px 10px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #4dd96d;
+      text-align: center;
+    }
+
+    th {
+      background-color: #6be079;
+      color: black;
+    }
+
+    button.toggle-btn {
+      padding: 6px 12px;
+      background-color: #6be079;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #cce7b3;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 13px;
+      }
+
+      .volver-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="menu-supervisor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+
+  <header>
+    <h1><i class="fas fa-user-cog"></i> Gestión de Conductores</h1>
+    <p>Activa o inactiva conductores que ya no estén vinculados</p>
+  </header>
+
+  <div class="container">
+    <table id="tablaUsuarios">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>
+    © 2025 DOR - Gestión de Conductores
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(async function () {
+      const res = await fetch('/api/usuarios-conductores');
+      const usuarios = await res.json();
+
+      const tbody = usuarios.map(u => `
+        <tr>
+          <td>${u.nombre} ${u.apellidos}</td>
+          <td>${u.correo}</td>
+          <td>${u.rol}</td>
+          <td>${u.estado}</td>
+          <td>
+            <button class="toggle-btn" data-id="${u.IdU}" data-estado="${u.estado}">
+              ${u.estado === 'activo' ? 'Inhabilitar' : 'Activar'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      $('#tablaUsuarios tbody').html(tbody);
+      $('#tablaUsuarios').DataTable();
+
+      $('#tablaUsuarios').on('click', '.toggle-btn', async function () {
+        const id = this.dataset.id;
+        const estadoActual = this.dataset.estado;
+        const nuevoEstado = estadoActual === 'activo' ? 'inhabilitado' : 'activo';
+
+        const confirmacion = await Swal.fire({
+          icon: 'warning',
+          title: `${nuevoEstado === 'inhabilitado' ? 'Inhabilitar' : 'Activar'} conductor`,
+          text: `¿Estás seguro de ${nuevoEstado === 'inhabilitado' ? 'inhabilitar' : 'activar'} este conductor?`,
+          showCancelButton: true,
+          confirmButtonText: 'Sí, confirmar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33'
+        });
+
+        if (confirmacion.isConfirmed) {
+          const res = await fetch('/api/inhabilitar-usuario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idUsuario: id, nuevoEstado })
+          });
+
+          const result = await res.json();
+
+          if (result.success) {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Actualizado!',
+              text: `El estado del conductor fue actualizado correctamente.`,
+              confirmButtonColor: '#28a745'
+            }).then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: '❌ No se pudo actualizar el estado del conductor.'
+            });
+          }
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
