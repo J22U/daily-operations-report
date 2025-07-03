@@ -184,6 +184,32 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.put('/api/actualizar-ruta', async (req, res) => {
+  const { idConductor, ruta, horaSalida, fecha, notasAdicionales } = req.body;
+
+  try {
+    await pool.request()
+      .input('idConductor', sql.Int, idConductor)
+      .input('ruta', sql.VarChar(255), ruta)
+      .input('horaSalida', sql.VarChar(10), horaSalida)
+      .input('fecha', sql.Date, fecha)
+      .input('notasAdicionales', sql.VarChar(500), notasAdicionales)
+      .query(`
+        UPDATE RUTASASIGNADAS
+        SET ruta = @ruta,
+            horaSalida = @horaSalida,
+            fecha = @fecha,
+            notasAdicionales = @notasAdicionales
+        WHERE idConductor = @idConductor
+      `);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Error al actualizar ruta:', err);
+    res.status(500).json({ success: false, message: 'Error al actualizar ruta en el servidor.' });
+  }
+});
+
 // Asignar tarea
 app.post('/api/asignar-tarea', async (req, res) => {
   const { idConductor, ruta, horaSalida, fechaAsignacion, fecha, notasAdicionales } = req.body;
