@@ -34,6 +34,87 @@ app.get('/api/usuario', (req, res) => {
   }
 });
 
+app.get('/api/usuarios-conductores', async (req, res) => {
+  try {
+    const pool = await poolConnect;
+    const result = await pool.request()
+      .query("SELECT * FROM USUARIOS WHERE rol = 'conductor'");
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
+
+// 🔄 Actualizar usuario
+app.put('/api/actualizar-usuario', async (req, res) => {
+  const { IdU, nombre, apellidos, correo, fechaNacimiento, rol, contraseña } = req.body;
+
+  try {
+    const pool = await poolConnect;
+    const request = pool.request()
+      .input('IdU', sql.Int, IdU)
+      .input('nombre', sql.VarChar, nombre)
+      .input('apellidos', sql.VarChar, apellidos)
+      .input('correo', sql.VarChar, correo)
+      .input('fechaNacimiento', sql.Date, fechaNacimiento)
+      .input('rol', sql.VarChar, rol);
+
+    if (contraseña && contraseña.trim() !== '') {
+      request.input('contraseña', sql.VarChar, contraseña);
+      await request.query(`
+        UPDATE USUARIOS
+        SET nombre = @nombre,
+            apellidos = @apellidos,
+            correo = @correo,
+            fechaNacimiento = @fechaNacimiento,
+            rol = @rol,
+            contraseña = @contraseña
+        WHERE IdU = @IdU
+      `);
+    } else {
+      await request.query(`
+        UPDATE USUARIOS
+        SET nombre = @nombre,
+            apellidos = @apellidos,
+            correo = @correo,
+            fechaNacimiento = @fechaNacimiento,
+            rol = @rol
+        WHERE IdU = @IdU
+      `);
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+});
+
+app.delete('/api/eliminar-usuario', async (req, res) => {
+  const { idUsuario } = req.body;
+
+  try {
+    await poolConnect;
+
+    // Eliminar rutas asignadas primero
+    await pool.request()
+      .input('idUsuario', sql.Int, idUsuario)
+      .query(`DELETE FROM RUTASASIGNADAS WHERE idConductor = @idUsuario`);
+
+    // Luego eliminar el usuario
+    await pool.request()
+      .input('idUsuario', sql.Int, idUsuario)
+      .query(`DELETE FROM USUARIOS WHERE IdU = @idUsuario`);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Error al eliminar usuario y rutas:', err);
+    res.status(500).json({ success: false, message: 'Error del servidor' });
+  }
+});
+
+
+
 // Obtener todas las rutas con nombre de conductor
 app.get('/api/todas-rutas', async (req, res) => {
   try {

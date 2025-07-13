@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -65,15 +66,18 @@
       color: black;
     }
 
-    button.toggle-btn {
-      padding: 6px 12px;
-      background-color: #6be079;
-      color: black;
+    button {
+      padding: 6px 10px;
+      margin: 2px;
       border: none;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
     }
+
+    .btn-editar    { background-color: #ffc107; color: black; }
+    .btn-eliminar  { background-color: #dc3545; color: white; }
+    .toggle-btn    { background-color: #6be079; color: black; }
 
     footer {
       text-align: center;
@@ -83,119 +87,261 @@
       margin-top: 30px;
     }
 
-    @media (max-width: 768px) {
-      table {
-        font-size: 13px;
-      }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
 
-      .volver-btn {
-        font-size: 14px;
-        padding: 8px 12px;
-      }
+    .modal-content {
+      background: #fff;
+      color: black;
+      padding: 20px;
+      border-radius: 8px;
+      width: 95%;
+      max-width: 500px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
 
-      header h1 {
-        font-size: 1.5rem;
-      }
+    .modal-content input,
+    .modal-content select {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .modal-buttons {
+      text-align: right;
+    }
+
+    .btn-cancelar {
+      background: #aaa;
+      color: black;
+    }
+
+    .btn-guardar {
+      background: #28a745;
+      color: white;
     }
   </style>
 </head>
 <body>
 
-  <a href="menu-supervisor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+<a href="menu-supervisor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
 
-  <header>
-    <h1><i class="fas fa-user-cog"></i> Gestión de Conductores</h1>
-    <p>Activa o inactiva conductores que ya no estén vinculados</p>
-  </header>
+<header>
+  <h1><i class="fas fa-user-cog"></i> Gestión de Conductores</h1>
+  <p>Activa, edita o elimina conductores del sistema</p>
+</header>
 
-  <div class="container">
-    <table id="tablaUsuarios">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Rol</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+<div class="container">
+  <table id="tablaUsuarios">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<footer>
+  © 2025 DOR - Gestión de Conductores
+</footer>
+
+<!-- Modal de Edición -->
+<div class="modal" id="modalEditar">
+  <div class="modal-content">
+    <h3>Editar Usuario</h3>
+    <input type="hidden" id="editId">
+    <input type="text" id="editNombre" placeholder="Nombre" required />
+    <input type="text" id="editApellidos" placeholder="Apellidos" required />
+    <input type="email" id="editCorreo" placeholder="Correo" required />
+    <input type="date" id="editFechaNacimiento" placeholder="Fecha Nacimiento" required />
+    <select id="editRol">
+      <option value="conductor">Conductor</option>
+      <option value="supervisor">Supervisor</option>
+    </select>
+    <input type="password" id="editClave" placeholder="Contraseña nueva" />
+
+    <div class="modal-buttons">
+      <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-guardar" onclick="guardarEdicion()">Guardar</button>
+    </div>
   </div>
+</div>
 
-  <footer>
-    © 2025 DOR - Gestión de Conductores
-  </footer>
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+  const modal = document.getElementById('modalEditar');
 
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script>
-    $(document).ready(async function () {
-      const res = await fetch('/api/usuarios-conductores');
-      const usuarios = await res.json();
+  function abrirModal(usuario) {
+    $('#editId').val(usuario.IdU);
+    $('#editNombre').val(usuario.nombre);
+    $('#editApellidos').val(usuario.apellidos);
+    $('#editCorreo').val(usuario.correo);
+    $('#editFechaNacimiento').val(usuario.fechaNacimiento?.split('T')[0]);
+    $('#editRol').val(usuario.rol);
+    $('#editClave').val('');
+    modal.style.display = 'flex';
+  }
 
-      const tbody = usuarios.map(u => `
-        <tr>
-          <td>${u.nombre} ${u.apellidos}</td>
-          <td>${u.correo}</td>
-          <td>${u.rol}</td>
-          <td>${u.estado}</td>
-          <td>
-            <button class="toggle-btn" data-id="${u.IdU}" data-estado="${u.estado}">
-              ${u.estado === 'activo' ? 'Inhabilitar' : 'Activar'}
-            </button>
-          </td>
-        </tr>
-      `).join('');
+  function cerrarModal() {
+    modal.style.display = 'none';
+  }
 
-      $('#tablaUsuarios tbody').html(tbody);
-      $('#tablaUsuarios').DataTable();
+  async function guardarEdicion() {
+    const datos = {
+      IdU: $('#editId').val(),
+      nombre: $('#editNombre').val(),
+      apellidos: $('#editApellidos').val(),
+      correo: $('#editCorreo').val(),
+      fechaNacimiento: $('#editFechaNacimiento').val(),
+      rol: $('#editRol').val(),
+      clave: $('#editClave').val()
+    };
 
-      $('#tablaUsuarios').on('click', '.toggle-btn', async function () {
-        const id = this.dataset.id;
-        const estadoActual = this.dataset.estado;
-        const nuevoEstado = estadoActual === 'activo' ? 'inhabilitado' : 'activo';
+    try {
+      const res = await fetch('/api/actualizar-usuario', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
 
-        const confirmacion = await Swal.fire({
-          icon: 'warning',
-          title: `${nuevoEstado === 'inhabilitado' ? 'Inhabilitar' : 'Activar'} conductor`,
-          text: `¿Estás seguro de ${nuevoEstado === 'inhabilitado' ? 'inhabilitar' : 'activar'} este conductor?`,
-          showCancelButton: true,
-          confirmButtonText: 'Sí, confirmar',
-          cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33'
+      const json = await res.json();
+
+      cerrarModal();
+
+      if (json.success) {
+        Swal.fire('¡Actualizado!', 'El usuario fue actualizado correctamente.', 'success')
+          .then(() => location.reload());
+      } else {
+        Swal.fire('Error', 'No se pudo actualizar el usuario.', 'error');
+      }
+    } catch (error) {
+      cerrarModal();
+      Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
+    }
+  }
+
+  $(document).ready(async function () {
+    const res = await fetch('/api/usuarios-conductores');
+    const usuarios = await res.json();
+
+    const tbody = usuarios.map(u => `
+      <tr>
+        <td>${u.nombre} ${u.apellidos}</td>
+        <td>${u.correo}</td>
+        <td>${u.rol}</td>
+        <td>${u.estado}</td>
+        <td>
+          <button class="toggle-btn" data-id="${u.IdU}" data-estado="${u.estado}">${u.estado === 'activo' ? 'Inhabilitar' : 'Activar'}</button>
+          <button class="btn-editar" 
+            data-id="${u.IdU}"
+            data-nombre="${u.nombre}"
+            data-apellidos="${u.apellidos}"
+            data-correo="${u.correo}"
+            data-fecha="${u.fechaNacimiento || ''}"
+            data-rol="${u.rol}">
+            ✏️
+          </button>
+          <button class="btn-eliminar" data-id="${u.IdU}">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+
+    $('#tablaUsuarios tbody').html(tbody);
+    $('#tablaUsuarios').DataTable();
+
+    $('#tablaUsuarios').on('click', '.toggle-btn', async function () {
+      const id = this.dataset.id;
+      const estadoActual = this.dataset.estado;
+      const nuevoEstado = estadoActual === 'activo' ? 'inhabilitado' : 'activo';
+
+      const confirmacion = await Swal.fire({
+        icon: 'warning',
+        title: `${nuevoEstado === 'inhabilitado' ? 'Inhabilitar' : 'Activar'} usuario`,
+        text: `¿Estás seguro de ${nuevoEstado === 'inhabilitado' ? 'inhabilitar' : 'activar'} este usuario?`,
+        showCancelButton: true,
+        confirmButtonText: 'Sí, confirmar',
+        cancelButtonText: 'Cancelar',
+      });
+
+      if (confirmacion.isConfirmed) {
+        const res = await fetch('/api/inhabilitar-usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idUsuario: id, nuevoEstado })
         });
 
-        if (confirmacion.isConfirmed) {
-          const res = await fetch('/api/inhabilitar-usuario', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idUsuario: id, nuevoEstado })
-          });
+        const result = await res.json();
 
-          const result = await res.json();
-
-          if (result.success) {
-            Swal.fire({
-              icon: 'success',
-              title: '¡Actualizado!',
-              text: `El estado del conductor fue actualizado correctamente.`,
-              confirmButtonColor: '#28a745'
-            }).then(() => {
-              location.reload();
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: '❌ No se pudo actualizar el estado del conductor.'
-            });
-          }
+        if (result.success) {
+          Swal.fire('¡Actualizado!', 'Estado cambiado correctamente.', 'success')
+            .then(() => location.reload());
+        } else {
+          Swal.fire('Error', 'No se pudo actualizar el estado.', 'error');
         }
-      });
+      }
     });
-  </script>
+
+    $('#tablaUsuarios').on('click', '.btn-eliminar', async function () {
+      const id = $(this).data('id');
+
+      const confirmacion = await Swal.fire({
+        icon: 'warning',
+        title: '¿Eliminar Usuario?',
+        text: 'Esta acción no se puede deshacer.',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+      });
+
+      if (confirmacion.isConfirmed) {
+        const res = await fetch('/api/eliminar-usuario', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idUsuario: id })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          Swal.fire('Eliminado', 'Usuario eliminado correctamente.', 'success')
+            .then(() => location.reload());
+        } else {
+          Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+        }
+      }
+    });
+
+    $('#tablaUsuarios').on('click', '.btn-editar', function () {
+      const usuario = {
+        IdU: $(this).data('id'),
+        nombre: $(this).data('nombre'),
+        apellidos: $(this).data('apellidos'),
+        correo: $(this).data('correo'),
+        fechaNacimiento: $(this).data('fecha'),
+        rol: $(this).data('rol')
+      };
+      abrirModal(usuario);
+    });
+  });
+</script>
 
 </body>
 </html>
