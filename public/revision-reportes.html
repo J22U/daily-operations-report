@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reportes de Revisión</title>
 
-  <!-- Íconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
-  <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
 
@@ -20,91 +17,16 @@
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       color: white;
     }
-
-    header {
-      text-align: center;
-      padding: 30px 20px 10px;
-      background-color: rgba(0,0,0,0.2);
-    }
-
-    header h1 {
-      color: #6be079;
-      margin-bottom: 10px;
-    }
-
-    .volver-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background-color: #6be079;
-      color: black;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    .container {
-      max-width: 95%;
-      margin: auto;
-      padding: 30px 10px;
-      background-color: rgba(255,255,255,0.05);
-      border-radius: 10px;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      color: white;
-    }
-
-    th, td {
-      padding: 8px;
-      border: 1px solid #4dd96d;
-      text-align: center;
-    }
-
-    th {
-      background-color: #6be079;
-      color: black;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-      color: #cce7b3;
-      margin-top: 30px;
-    }
-
-    .dt-buttons .dt-button {
-      background-color: #6be079 !important;
-      color: black !important;
-      border: none;
-      margin-right: 5px;
-      font-weight: bold;
-    }
-
-    @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        font-size: 12px;
-      }
-
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      .volver-btn {
-        padding: 8px 12px;
-        font-size: 14px;
-      }
-
-      .container {
-        padding: 20px 5px;
-      }
-    }
+    header { text-align: center; padding: 30px 20px 10px; background-color: rgba(0,0,0,0.2); }
+    header h1 { color: #6be079; margin-bottom: 10px; }
+    .volver-btn { position: absolute; top: 15px; left: 15px; background: #6be079; color: black; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; text-decoration: none; }
+    .container { max-width: 95%; margin: auto; padding: 30px 10px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; color: white; }
+    th, td { padding: 8px; border: 1px solid #4dd96d; text-align: center; }
+    th { background: #6be079; color: black; }
+    footer { text-align: center; padding: 15px; font-size: 14px; color: #cce7b3; margin-top: 30px; }
+    .dt-buttons .dt-button { background: #6be079 !important; color: black !important; border: none; margin-right: 5px; font-weight: bold; }
+    @media (max-width: 768px) { table, thead, tbody, th, td, tr { font-size: 12px; } }
   </style>
 </head>
 <body>
@@ -138,15 +60,10 @@
     </table>
   </div>
 
-  <footer>
-  <p>© 2025 DOR - Revisión de Reportes </p>
-  </footer>
+  <footer><p>© 2025 DOR - Revisión de Reportes</p></footer>
 
-  <!-- jQuery y DataTables JS -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-  <!-- Botones de exportación -->
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
@@ -155,59 +72,75 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
   <script>
-    $(document).ready(async function () {
-      try {
-        const res = await fetch('/api/reportes-revision');
-        const reportes = await res.json();
+    let dataTable;
+    let ultimaId = null;
 
-        const filas = reportes.map(rep => `
-          <tr>
-            <td>${rep.fecha?.split('T')[0] || ''}</td>
-            <td>${rep.conductor || ''}</td>
-            <td>${rep.placa || ''}</td>
-            <td>${rep.luces || ''}</td>
-            <td>${rep.pito || ''}</td>
-            <td>${rep.aceite || ''}</td>
-            <td>${rep.refrigerante || ''}</td>
-            <td>${rep.extintor || ''}</td>
-            <td>${rep.botiquin || ''}</td>
-            <td>${rep.neumaticos || ''}</td>
-            <td>${rep.carroceria || ''}</td>
-            <td>${rep.observaciones || ''}</td>
-          </tr>
-        `).join('');
+    function renderTabla(reportes) {
+      // 🔹 Ordenar por fecha y luego por idReporte (descendente)
+      reportes.sort((a, b) => {
+        const fechaA = new Date(a.fecha);
+        const fechaB = new Date(b.fecha);
+        if (fechaB - fechaA !== 0) return fechaB - fechaA;
+        return b.idReporte - a.idReporte;
+      });
 
-        $('#tablaReportes tbody').html(filas);
+      const filas = reportes.map(rep => [
+        rep.fecha?.split("T")[0] || "",
+        rep.conductor || "",
+        rep.placa || "",
+        rep.luces || "",
+        rep.pito || "",
+        rep.aceite || "",
+        rep.refrigerante || "",
+        rep.extintor || "",
+        rep.botiquin || "",
+        rep.neumaticos || "",
+        rep.carroceria || "",
+        rep.observaciones || ""
+      ]);
 
-        $('#tablaReportes').DataTable({
+      if (!dataTable) {
+        dataTable = $("#tablaReportes").DataTable({
           scrollX: true,
           responsive: true,
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-          },
-          dom: 'Bfrtip',
-          buttons: [
-            {
-              extend: 'excelHtml5',
-              title: 'Reportes_Revisión'
-            },
-            {
-              extend: 'pdfHtml5',
-              title: 'Reportes_Revisión',
-              orientation: 'landscape',
-              pageSize: 'A4'
-            },
-            {
-              extend: 'print',
-              title: 'Reportes de Revisión'
-            }
-          ]
+          language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+          dom: "Bfrtip",
+          buttons: ["excelHtml5", "pdfHtml5", "print"],
+          order: [] // dejamos que nuestro sort manual decida
         });
+      }
 
+      dataTable.clear().rows.add(filas).draw();
+      dataTable.page("first").draw("page");
+
+      if (reportes.length > 0) {
+        const nuevoId = reportes[0].idReporte;
+
+        // 🔥 Pintar en naranja solo si hay un nuevo reporte
+        if (ultimaId === null || nuevoId !== ultimaId) {
+          const firstRow = $("#tablaReportes tbody tr:first");
+          firstRow.css("background", "orange");
+          setTimeout(() => firstRow.css("background", ""), 3000);
+        }
+
+        ultimaId = nuevoId;
+      }
+    }
+
+    async function cargarReportes() {
+      try {
+        const res = await fetch("/api/reportes-revision");
+        const reportes = await res.json();
+        renderTabla(reportes);
       } catch (error) {
         console.error("❌ Error al cargar reportes:", error);
-        $('#tablaReportes').after('<p style="color:red">No se pudieron cargar los reportes.</p>');
       }
+    }
+
+    $(document).ready(async function () {
+      await fetch("/api/marcar-notificaciones-vistas", { method: "POST" });
+      await cargarReportes();
+      setInterval(cargarReportes, 10000);
     });
   </script>
 

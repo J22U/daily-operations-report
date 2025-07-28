@@ -90,6 +90,48 @@ app.put('/api/actualizar-usuario', async (req, res) => {
   }
 });
 
+app.get('/api/nuevo-reporte', async (req, res) => {
+  try {
+    const result = await pool.request()
+      .query("SELECT COUNT(*) AS cantidad FROM ReportesRevision WHERE revisado IS NULL OR revisado = 0");
+    res.json({ nuevo: result.recordset[0].cantidad > 0 });
+  } catch (err) {
+    console.error('❌ Error al verificar reportes nuevos:', err);
+    res.json({ nuevo: false });
+  }
+});
+
+app.post('/api/marcar-revisados', async (req, res) => {
+  try {
+    await pool.request().query("UPDATE ReportesRevision SET revisado = 1");
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Error al marcar reportes:', err);
+    res.json({ success: false });
+  }
+});
+
+app.get('/api/notificaciones', async (req, res) => {
+  try {
+    const result = await pool.request()
+      .query("SELECT COUNT(*) AS cantidad FROM ReportesRevision WHERE revisado IS NULL OR revisado = 0");
+    res.json({ cantidad: result.recordset[0].cantidad });
+  } catch (err) {
+    console.error("❌ Error al obtener notificaciones:", err);
+    res.status(500).json({ cantidad: 0 });
+  }
+});
+
+app.post("/api/marcar-notificaciones-vistas", async (req, res) => {
+  try {
+    await pool.request().query("UPDATE ReportesRevision SET revisado = 1 WHERE revisado IS NULL OR revisado = 0");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Error al marcar notificaciones como vistas:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
 app.delete('/api/eliminar-usuario', async (req, res) => {
   const { idUsuario } = req.body;
 

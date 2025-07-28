@@ -117,6 +117,7 @@
     .main-content {
       flex: 1;
       padding: 30px;
+      position: relative;
     }
 
     .header {
@@ -174,35 +175,57 @@
       color: var(--text-lighter);
     }
 
+    /* 🔔 Contenedor de notificación */
+    .notif-container {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .notif-container i {
+      font-size: 32px;
+      color: white;
+      position: relative;
+    }
+
+    #badgeNotif {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 50%;
+      display: none;
+      font-weight: bold;
+    }
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
       }
-
       .sidebar {
         width: 100%;
         height: auto;
       }
-
       .sidebar.expanded {
         width: 100%;
       }
-
       .menu-items {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
       }
-
       .menu-item {
         flex: 1 0 120px;
         justify-content: center;
       }
-
       .menu-item span {
         display: none;
       }
-
       .sidebar.expanded .menu-item span {
         display: inline;
       }
@@ -235,11 +258,9 @@
           <span>Asignar rutas</span>
         </a>
         <a href="rutas-asignadas-supervisor.html" class="menu-item">
-  <i class="fas fa-route"></i>
-  <span>Rutas Asignadas</span>
-</a>
-</a>
-</a>
+          <i class="fas fa-route"></i>
+          <span>Rutas Asignadas</span>
+        </a>
         <a href="index.html" class="menu-item logout-item">
           <i class="fas fa-sign-out-alt"></i>
           <span>Cerrar sesión</span>
@@ -277,14 +298,11 @@
           </div>
         </a>
         <a href="rutas-asignadas-supervisor.html" style="text-decoration: none; color: inherit;">
-  <div class="dashboard-card">
-    <div class="card-icon"><i class="fas fa-route"></i></div>
-    <h3 class="card-title">Rutas Asignadas</h3>
-    <p class="card-desc">Ver las rutas asignadas</p>
-  </div>
-</a>
+          <div class="dashboard-card">
+            <div class="card-icon"><i class="fas fa-route"></i></div>
+            <h3 class="card-title">Rutas Asignadas</h3>
+            <p class="card-desc">Ver las rutas asignadas</p>
           </div>
-        </a>
         </a>
       </div>
 
@@ -294,6 +312,15 @@
     </main>
   </div>
 
+  <!-- 🔔 Icono de notificación con número -->
+  <div class="notif-container" onclick="irAReportes()">
+    <i id="iconoNotificacion" class="fas fa-bell"></i>
+    <span id="badgeNotif">0</span>
+  </div>
+
+  <!-- 🔊 Sonido de notificación -->
+  <audio id="sonidoNotif" src="notificacion.mp3" preload="auto"></audio>
+
   <script>
     function toggleMenu() {
       document.getElementById('sidebar').classList.toggle('expanded');
@@ -302,15 +329,41 @@
     fetch('/api/usuario')
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          document.getElementById('nombre-usuario').textContent = data.nombre;
-        } else {
-          document.getElementById('nombre-usuario').textContent = 'Supervisor';
-        }
-      })
-      .catch(err => {
-        document.getElementById('nombre-usuario').textContent = 'Supervisor';
+        document.getElementById('nombre-usuario').textContent =
+          data.success ? data.nombre : 'Supervisor';
       });
+
+    let notificacionesPrevias = 0;
+    const sonidoNotif = document.getElementById("sonidoNotif");
+
+    function actualizarNotificaciones() {
+      fetch("/api/notificaciones")
+        .then(res => res.json())
+        .then(data => {
+          const badge = document.getElementById("badgeNotif");
+          if (data.cantidad > 0) {
+            badge.textContent = data.cantidad;
+            badge.style.display = "inline-block";
+          } else {
+            badge.style.display = "none";
+          }
+
+          // ✅ Reproducir sonido solo si hay más notificaciones que antes
+          if (data.cantidad > notificacionesPrevias) {
+            sonidoNotif.play();
+          }
+
+          notificacionesPrevias = data.cantidad;
+        })
+        .catch(err => console.error("Error obteniendo notificaciones:", err));
+    }
+
+    setInterval(actualizarNotificaciones, 5000);
+    actualizarNotificaciones();
+
+    function irAReportes() {
+      window.location.href = "revision-reportes.html";
+    }
   </script>
 </body>
 </html>
