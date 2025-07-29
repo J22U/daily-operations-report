@@ -299,7 +299,8 @@ app.post('/login', async (req, res) => {
       rol: user.rol
     };
 
-    res.json({ success: true, rol: user.rol });
+    // 🔹 Agregar nombre aquí también
+    res.json({ success: true, rol: user.rol, nombre: user.nombre });
 
   } catch (err) {
     console.error('❌ Error en login:', err);

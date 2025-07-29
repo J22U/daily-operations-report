@@ -326,44 +326,51 @@
       document.getElementById('sidebar').classList.toggle('expanded');
     }
 
-    fetch('/api/usuario')
+    // ✅ Tomar el nombre desde sessionStorage guardado en el login
+  const nombreGuardado = sessionStorage.getItem("nombreUsuario");
+  if (nombreGuardado) {
+    document.getElementById("nombre-usuario").textContent = nombreGuardado;
+  } else {
+    // Si no hay nombre en sessionStorage, consulta la API como respaldo
+    fetch("/api/usuario")
       .then(res => res.json())
       .then(data => {
-        document.getElementById('nombre-usuario').textContent =
-          data.success ? data.nombre : 'Supervisor';
+        document.getElementById("nombre-usuario").textContent =
+          data.success ? data.nombre : "Supervisor";
       });
+  }
 
-    let notificacionesPrevias = 0;
-    const sonidoNotif = document.getElementById("sonidoNotif");
+  let notificacionesPrevias = 0;
+  const sonidoNotif = document.getElementById("sonidoNotif");
 
-    function actualizarNotificaciones() {
-      fetch("/api/notificaciones")
-        .then(res => res.json())
-        .then(data => {
-          const badge = document.getElementById("badgeNotif");
-          if (data.cantidad > 0) {
-            badge.textContent = data.cantidad;
-            badge.style.display = "inline-block";
-          } else {
-            badge.style.display = "none";
-          }
+  function actualizarNotificaciones() {
+    fetch("/api/notificaciones")
+      .then(res => res.json())
+      .then(data => {
+        const badge = document.getElementById("badgeNotif");
+        if (data.cantidad > 0) {
+          badge.textContent = data.cantidad;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
 
-          // ✅ Reproducir sonido solo si hay más notificaciones que antes
-          if (data.cantidad > notificacionesPrevias) {
-            sonidoNotif.play();
-          }
+        // ✅ Reproducir sonido solo si hay más notificaciones que antes
+        if (data.cantidad > notificacionesPrevias) {
+          sonidoNotif.play();
+        }
 
-          notificacionesPrevias = data.cantidad;
-        })
-        .catch(err => console.error("Error obteniendo notificaciones:", err));
-    }
+        notificacionesPrevias = data.cantidad;
+      })
+      .catch(err => console.error("Error obteniendo notificaciones:", err));
+  }
 
-    setInterval(actualizarNotificaciones, 5000);
-    actualizarNotificaciones();
+  setInterval(actualizarNotificaciones, 5000);
+  actualizarNotificaciones();
 
-    function irAReportes() {
-      window.location.href = "revision-reportes.html";
-    }
+  function irAReportes() {
+    window.location.href = "revision-reportes.html";
+  }
   </script>
 </body>
 </html>

@@ -325,18 +325,12 @@
       document.getElementById('sidebar').classList.toggle('expanded');
     }
 
-    fetch('/api/usuario')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('nombre-usuario').textContent = data.nombre;
-        } else {
-          document.getElementById('nombre-usuario').textContent = 'Supervisor';
-        }
-      })
-      .catch(err => {
-        document.getElementById('nombre-usuario').textContent = 'Supervisor';
-      });
+    // ✅ Cargar datos del usuario de la sesión de esta pestaña
+    const nombre = sessionStorage.getItem("nombre");
+    const rol = sessionStorage.getItem("rol");
+
+    document.getElementById("nombre-usuario").textContent = nombre || "Invitado";
+    document.getElementById("rol-usuario").textContent = rol || "Conductor";
   </script>
 </body>
 </html>
