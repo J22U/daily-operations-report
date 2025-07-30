@@ -114,6 +114,15 @@
       color: white;
     }
 
+    /* ✅ Cursor de manito en el botón editar */
+    .btn-editar {
+      background: #6be079;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
     @media (max-width: 768px) {
       table, th, td, tr { font-size: 12px; }
       header h1 { font-size: 1.5rem; }
@@ -157,7 +166,7 @@
     <div class="modal-content">
       <h2>Editar Ruta</h2>
       <form id="formEditarRuta">
-        <input type="hidden" id="editIdConductor">
+        <input type="hidden" id="editIdRuta">
         <label>Ruta:</label>
         <input type="text" id="editRuta" required />
         <label>Hora de salida:</label>
@@ -197,7 +206,7 @@
             <td>${r.horaSalida}</td>
             <td>${r.fecha.split('T')[0]}</td>
             <td>${r.notasAdicionales || ''}</td>
-            <td><button class="btn-editar" data-id="${r.idConductor}">✏️</button></td>
+            <td><button class="btn-editar" data-id="${r.idRuta}">✏️</button></td>
           </tr>
         `).join('');
         $('#tablaRutas tbody').html(filas);
@@ -231,7 +240,7 @@
       const fecha = fila.find('td:eq(3)').text();
       const notas = fila.find('td:eq(4)').text();
 
-      $('#editIdConductor').val(id);
+      $('#editIdRuta').val(id);
       $('#editRuta').val(ruta);
       $('#editHoraSalida').val(hora);
       $('#editFecha').val(fecha);
@@ -247,7 +256,7 @@
       e.preventDefault();
 
       const datos = {
-        idConductor: $('#editIdConductor').val(),
+        idRuta: $('#editIdRuta').val(),
         ruta: $('#editRuta').val(),
         horaSalida: $('#editHoraSalida').val(),
         fecha: $('#editFecha').val(),

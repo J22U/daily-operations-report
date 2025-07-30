@@ -161,11 +161,12 @@ app.delete('/api/eliminar-usuario', async (req, res) => {
 app.get('/api/todas-rutas', async (req, res) => {
   try {
     const result = await pool.request().query(`
-      SELECT R.idConductor, U.nombre + ' ' + U.apellidos AS nombreConductor,
+      SELECT R.idRuta, R.idConductor, 
+             U.nombre + ' ' + U.apellidos AS nombreConductor,
              R.ruta, R.horaSalida, R.fecha, R.notasAdicionales
       FROM RUTASASIGNADAS R
       JOIN USUARIOS U ON R.idConductor = U.IdU
-      ORDER BY R.fecha DESC
+      ORDER BY R.fecha DESC, R.idRuta DESC
     `);
     res.json(result.recordset);
   } catch (error) {
@@ -185,11 +186,13 @@ app.get('/api/rutas-conductor', async (req, res) => {
     const result = await pool.request()
       .input('idConductor', sql.Int, usuario.id)
       .query(`
-        SELECT ruta, horaSalida, fecha, notasAdicionales 
+        SELECT idRuta, ruta, horaSalida, fecha, notasAdicionales 
         FROM RUTASASIGNADAS
         WHERE idConductor = @idConductor
-        ORDER BY fecha DESC
+        ORDER BY fecha DESC, idRuta DESC
       `);
+
+
 
     res.json(result.recordset);
   } catch (err) {
@@ -309,11 +312,11 @@ app.post('/login', async (req, res) => {
 });
 
 app.put('/api/actualizar-ruta', async (req, res) => {
-  const { idConductor, ruta, horaSalida, fecha, notasAdicionales } = req.body;
+  const { idRuta, ruta, horaSalida, fecha, notasAdicionales } = req.body;
 
   try {
     await pool.request()
-      .input('idConductor', sql.Int, idConductor)
+      .input('idRuta', sql.Int, idRuta)
       .input('ruta', sql.VarChar(255), ruta)
       .input('horaSalida', sql.VarChar(10), horaSalida)
       .input('fecha', sql.Date, fecha)
@@ -324,7 +327,7 @@ app.put('/api/actualizar-ruta', async (req, res) => {
             horaSalida = @horaSalida,
             fecha = @fecha,
             notasAdicionales = @notasAdicionales
-        WHERE idConductor = @idConductor
+        WHERE idRuta = @idRuta
       `);
 
     res.json({ success: true });
@@ -333,6 +336,8 @@ app.put('/api/actualizar-ruta', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al actualizar ruta en el servidor.' });
   }
 });
+
+
 
 // Asignar tarea
 app.post('/api/asignar-tarea', async (req, res) => {
