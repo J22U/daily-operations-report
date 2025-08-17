@@ -62,21 +62,23 @@
 
   <footer><p>© 2025 DOR - Revisión de Reportes</p></footer>
 
+  <!-- ✅ Librerías en el orden correcto -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <!-- Librerías necesarias para exportar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
   <script>
     let dataTable;
     let ultimaId = null;
 
     function renderTabla(reportes) {
-      // 🔹 Ordenar por fecha y luego por idReporte (descendente)
       reportes.sort((a, b) => {
         const fechaA = new Date(a.fecha);
         const fechaB = new Date(b.fecha);
@@ -84,20 +86,29 @@
         return b.idReporte - a.idReporte;
       });
 
-      const filas = reportes.map(rep => [
-        rep.fecha?.split("T")[0] || "",
-        rep.conductor || "",
-        rep.placa || "",
-        rep.luces || "",
-        rep.pito || "",
-        rep.aceite || "",
-        rep.refrigerante || "",
-        rep.extintor || "",
-        rep.botiquin || "",
-        rep.neumaticos || "",
-        rep.carroceria || "",
-        rep.observaciones || ""
-      ]);
+      const palabrasFallo = ["roto", "rotos", "faltante", "faltantes", "no funciona", "no funcionan", "bajo","no revisado", "no disponible", "desgastados", "nivel bajo", "niveles bajos"];
+
+      const filas = reportes.map(rep => {
+        const fila = [
+          rep.fecha?.split("T")[0] || "",
+          rep.conductor || "",
+          rep.placa || "",
+          rep.luces || "",
+          rep.pito || "",
+          rep.aceite || "",
+          rep.refrigerante || "",
+          rep.extintor || "",
+          rep.botiquin || "",
+          rep.neumaticos || "",
+          rep.carroceria || "",
+          rep.observaciones || ""
+        ];
+
+        const hayFallo = [rep.luces, rep.pito, rep.aceite, rep.refrigerante, rep.extintor, rep.botiquin, rep.neumaticos, rep.carroceria]
+          .some(valor => valor && palabrasFallo.some(palabra => valor.toLowerCase().includes(palabra)));
+
+        return { fila, hayFallo };
+      });
 
       if (!dataTable) {
         dataTable = $("#tablaReportes").DataTable({
@@ -105,24 +116,60 @@
           responsive: true,
           language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
           dom: "Bfrtip",
-          buttons: ["excelHtml5", "pdfHtml5", "print"],
-          order: [] // dejamos que nuestro sort manual decida
+          buttons: [
+            "excelHtml5",
+            {
+              extend: "pdfHtml5",
+              text: "PDF",
+              orientation: "landscape",
+              pageSize: "A4",
+              title: "TABLA DE REPORTES",
+              customize: function (doc) {
+                const fecha = new Date().toLocaleDateString();
+
+                doc.content.unshift({
+                  text: "Plataforma DOR - Fecha de descarga: " + fecha,
+                  alignment: "center",
+                  margin: [0, 0, 0, 10],
+                });
+
+                const tableBody = doc.content[2].table.body;
+                doc.content[2].layout = {
+                  hLineWidth: () => 1,
+                  vLineWidth: () => 1,
+                  hLineColor: () => "#000000",
+                  vLineColor: () => "#000000",
+                };
+
+                tableBody[0].forEach((cell) => {
+                  cell.fillColor = "#6be079";
+                  cell.color = "black";
+                  cell.bold = true;
+                });
+              },
+            },
+            "print",
+          ],
+          order: [],
+          createdRow: function (row, data, dataIndex) {
+            const reporte = filas[dataIndex];
+            if (reporte.hayFallo) {
+              $(row).css("background-color", "rgba(255, 0, 0, 0.4)");
+            }
+          },
         });
       }
 
-      dataTable.clear().rows.add(filas).draw();
+      dataTable.clear().rows.add(filas.map(r => r.fila)).draw();
       dataTable.page("first").draw("page");
 
       if (reportes.length > 0) {
         const nuevoId = reportes[0].idReporte;
-
-        // 🔥 Pintar en naranja solo si hay un nuevo reporte
         if (ultimaId === null || nuevoId !== ultimaId) {
           const firstRow = $("#tablaReportes tbody tr:first");
           firstRow.css("background", "orange");
           setTimeout(() => firstRow.css("background", ""), 3000);
         }
-
         ultimaId = nuevoId;
       }
     }
