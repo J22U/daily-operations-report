@@ -52,23 +52,33 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: auto;
       color: white;
+      min-width: 700px; /* ✅ asegura scroll en móvil */
     }
-
-    th, td { padding: 8px; 
-      border: 1px solid #4dd96d; 
-      text-align: center; }
-
-    th { background: #6be079; 
-      color: black; }
-
-    button {
-      padding: 6px 10px;
-      margin: 2px;
+    th, td {
+      padding: 8px;
+      border: 1px solid #4dd96d;
+      text-align: center;
+      white-space: normal;
+    }
+    th {
+      background-color: #6be079;
+      color: black;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #cce7b3;
+      margin-top: 30px;
+    }
+    .dt-buttons .dt-button {
+      background-color: #6be079 !important;
+      color: black !important;
       border: none;
-      border-radius: 6px;
+      margin-right: 5px;
       font-weight: bold;
-      cursor: pointer;
     }
 
     .btn-editar    { background-color: #ffc107; color: black; }
