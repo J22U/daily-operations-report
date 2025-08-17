@@ -137,6 +137,44 @@
       background-color: #ffe5e5;
     }
 
+    /* --- Label flotante --- */
+    .input-group {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff11;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .input-group label {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #ccc;
+      font-size: 14px;
+      pointer-events: none;
+      transition: 0.2s ease all;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: -8px;
+      left: 10px;
+      font-size: 12px;
+      color: #9bf39b;
+      background: #243b55;
+      padding: 0 5px;
+      border-radius: 5px;
+    }
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -187,7 +225,13 @@
           <input type="text" name="nombre" placeholder="Nombre" required />
           <input type="text" name="apellidos" placeholder="Apellidos" required />
           <input type="email" name="correo" placeholder="Correo Electrónico" required />
-          <input type="date" name="fechaNacimiento" placeholder="Fecha de Nacimiento" required />
+
+          <!-- Campo con label flotante -->
+          <div class="input-group">
+            <input type="date" name="fechaNacimiento" id="fechaNacimiento" placeholder=" " required />
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+          </div>
+
           <select name="rol" required>
             <option value="" disabled selected>Selecciona tu cargo</option>
             <option value="Supervisor">Supervisor</option>
