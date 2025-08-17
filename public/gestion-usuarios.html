@@ -46,10 +46,10 @@
       padding: 30px 10px;
       background-color: rgba(255,255,255,0.05);
       border-radius: 10px;
-      overflow-x: visible;
+      overflow: visible; /* scroll solo en tabla */
     }
 
-     /* ✅ Contenedor de la tabla con scroll horizontal */
+    /* ✅ Contenedor de la tabla con scroll horizontal */
     .tabla-wrapper {
       width: 100%;
       overflow-x: auto;
@@ -91,14 +91,6 @@
     .btn-editar    { background-color: #ffc107; color: black; }
     .btn-eliminar  { background-color: #dc3545; color: white; }
     .toggle-btn    { background-color: #6be079; color: black; }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-      color: #cce7b3;
-      margin-top: 30px;
-    }
 
     /* Modal */
     .modal {
@@ -156,18 +148,20 @@
 </header>
 
 <div class="container">
-  <table id="tablaUsuarios">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="tabla-wrapper">
+    <table id="tablaUsuarios">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
 <footer>
