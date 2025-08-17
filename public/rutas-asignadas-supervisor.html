@@ -38,11 +38,20 @@
       border-radius: 10px;
       overflow: visible;
     }
+
+    /* ✅ Contenedor de la tabla con scroll horizontal */
+    .tabla-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       table-layout: auto;
       color: white;
+      min-width: 700px; /* ✅ asegura scroll en móvil */
     }
     th, td {
       padding: 8px;
@@ -142,19 +151,21 @@
   </header>
 
   <div class="container">
-    <table id="tablaRutas" class="display nowrap">
-      <thead>
-        <tr>
-          <th>Conductor</th>
-          <th>Ruta</th>
-          <th>Hora de Salida</th>
-          <th>Fecha</th>
-          <th>Notas Adicionales</th>
-          <th>Editar</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="tabla-wrapper">
+      <table id="tablaRutas" class="display nowrap">
+        <thead>
+          <tr>
+            <th>Conductor</th>
+            <th>Ruta</th>
+            <th>Hora de Salida</th>
+            <th>Fecha</th>
+            <th>Notas Adicionales</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <footer>
@@ -213,7 +224,7 @@
 
         $('#tablaRutas').DataTable({
           autoWidth: true,
-          scrollX: false,
+          scrollX: true,   // ✅ activamos scroll horizontal solo en la tabla
           responsive: true,
           language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
