@@ -7,7 +7,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -50,7 +49,7 @@
             position: relative;
         }
 
-        /* ✅ Contenedor de la tabla con scroll horizontal */
+        /* Contenedor para la tabla con scroll horizontal */
         .tabla-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -58,23 +57,25 @@
         }
 
         table {
-            width: 100% !important;
+            width: 100%;
             border-collapse: collapse;
+            table-layout: auto;
             color: white;
-            /* ✅ Eliminado: table-layout: fixed; */
+            min-width: 700px; /* Asegura el scroll en dispositivos móviles. */
         }
+        
         th, td {
             padding: 8px;
             border: 1px solid #4dd96d;
             text-align: center;
-            white-space: normal;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal; /* ✅ Se cambió 'nowrap' a 'normal' */
         }
+        
         th {
             background-color: #6be079;
             color: black;
         }
+        
         footer {
             text-align: center;
             padding: 15px;
@@ -82,6 +83,7 @@
             color: #cce7b3;
             margin-top: 30px;
         }
+        
         .dt-buttons .dt-button {
             background-color: #6be079 !important;
             color: black !important;
@@ -99,9 +101,9 @@
             display: none;
             position: absolute;
             z-index: 9999;
-            top: 0; 
+            top: 0;
             left: 0;
-            width: 100%; 
+            width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
             justify-content: center;
@@ -145,7 +147,8 @@
 
 <div class="container">
     <div class="tabla-wrapper">
-        <table id="tablaUsuarios" class="display"> <thead>
+        <table id="tablaUsuarios" class="display">
+            <thead>
                 <tr>
                     <th>Nombre</th>
                     <th>Correo</th>
@@ -186,74 +189,26 @@
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 <script>
-    const modal = document.getElementById('modalEditar');
-    let tabla;
-
     function abrirModal(usuario) {
-        $('#editId').val(usuario.IdU);
-        $('#editNombre').val(usuario.nombre);
-        $('#editApellidos').val(usuario.apellidos);
-        $('#editCorreo').val(usuario.correo);
-        $('#editFechaNacimiento').val(usuario.fechaNacimiento?.split('T')[0]);
-        $('#editRol').val(usuario.rol);
-        $('#editClave').val('');
-        modal.style.display = 'flex';
+        const modal = document.getElementById('modalEditar');
+        if (modal) {
+            $('#editId').val(usuario.IdU);
+            $('#editNombre').val(usuario.nombre);
+            $('#editApellidos').val(usuario.apellidos);
+            $('#editCorreo').val(usuario.correo);
+            $('#editFechaNacimiento').val(usuario.fechaNacimiento?.split('T')[0]);
+            $('#editRol').val(usuario.rol);
+            $('#editClave').val('');
+            modal.style.display = 'flex';
+        }
     }
 
     function cerrarModal() {
-        modal.style.display = 'none';
-    }
-
-    async function cargarUsuarios() {
-        const res = await fetch('/api/usuarios-conductores');
-        const usuarios = await res.json();
-        
-        if ($.fn.DataTable.isDataTable('#tablaUsuarios')) {
-            tabla.destroy();
+        const modal = document.getElementById('modalEditar');
+        if (modal) {
+            modal.style.display = 'none';
         }
-
-        tabla = $('#tablaUsuarios').DataTable({
-            data: usuarios,
-            columns: [
-                { 
-                    data: null,
-                    render: function (data, type, row) {
-                        return `${row.nombre} ${row.apellidos}`;
-                    },
-                    width: '25%'
-                },
-                { data: 'correo', width: '30%' },
-                { data: 'rol', width: '15%' },
-                { data: 'estado', width: '15%' },
-                { 
-                    data: null,
-                    render: function (data, type, row) {
-                        const toggleBtnText = row.estado === 'activo' ? 'Inhabilitar' : 'Activar';
-                        const fechaNacimiento = row.fechaNacimiento ? row.fechaNacimiento.split('T')[0] : '';
-                        
-                        return `
-                            <button class="toggle-btn" data-id="${row.IdU}" data-estado="${row.estado}">${toggleBtnText}</button>
-                            <button class="btn-editar" 
-                                data-id="${row.IdU}"
-                                data-nombre="${row.nombre}"
-                                data-apellidos="${row.apellidos}"
-                                data-correo="${row.correo}"
-                                data-fecha="${fechaNacimiento}"
-                                data-rol="${row.rol}">
-                                ✏️
-                            </button>
-                            <button class="btn-eliminar" data-id="${row.IdU}">🗑️</button>
-                        `;
-                    },
-                    width: '15%'
-                }
-            ],
-            scrollX: true, // ✅ Esta es la propiedad que habilita el scroll horizontal
-            autoWidth: false, // ✅ Permite que tus anchos de columna definidos funcionen
-            responsive: true // ✅ Activa la responsividad de DataTables
-        });
     }
 
     async function guardarEdicion() {
@@ -280,19 +235,44 @@
 
             if (json.success) {
                 Swal.fire('¡Actualizado!', 'El usuario fue actualizado correctamente.', 'success')
-                    .then(() => cargarUsuarios());
+                    .then(() => location.reload());
             } else {
                 Swal.fire('Error', 'No se pudo actualizar el usuario.', 'error');
             }
         } catch (error) {
             cerrarModal();
             Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
-            console.error(error);
         }
     }
 
-    $(document).ready(function () {
-        cargarUsuarios();
+    $(document).ready(async function () {
+        const res = await fetch('/api/usuarios-conductores');
+        const usuarios = await res.json();
+
+        const tbody = usuarios.map(u => `
+            <tr>
+                <td>${u.nombre} ${u.apellidos}</td>
+                <td>${u.correo}</td>
+                <td>${u.rol}</td>
+                <td>${u.estado}</td>
+                <td>
+                    <button class="toggle-btn" data-id="${u.IdU}" data-estado="${u.estado}">${u.estado === 'activo' ? 'Inhabilitar' : 'Activar'}</button>
+                    <button class="btn-editar"
+                        data-id="${u.IdU}"
+                        data-nombre="${u.nombre}"
+                        data-apellidos="${u.apellidos}"
+                        data-correo="${u.correo}"
+                        data-fecha="${u.fechaNacimiento || ''}"
+                        data-rol="${u.rol}">
+                        ✏️
+                    </button>
+                    <button class="btn-eliminar" data-id="${u.IdU}">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+
+        $('#tablaUsuarios tbody').html(tbody);
+        $('#tablaUsuarios').DataTable();
 
         $('#tablaUsuarios').on('click', '.toggle-btn', async function () {
             const id = this.dataset.id;
@@ -319,7 +299,7 @@
 
                 if (result.success) {
                     Swal.fire('¡Actualizado!', 'Estado cambiado correctamente.', 'success')
-                        .then(() => cargarUsuarios());
+                        .then(() => location.reload());
                 } else {
                     Swal.fire('Error', 'No se pudo actualizar el estado.', 'error');
                 }
@@ -349,7 +329,7 @@
 
                 if (result.success) {
                     Swal.fire('Eliminado', 'Usuario eliminado correctamente.', 'success')
-                        .then(() => cargarUsuarios());
+                        .then(() => location.reload());
                 } else {
                     Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
                 }
@@ -357,8 +337,15 @@
         });
 
         $('#tablaUsuarios').on('click', '.btn-editar', function () {
-            const rowData = tabla.row($(this).closest('tr')).data();
-            abrirModal(rowData);
+            const usuario = {
+                IdU: $(this).data('id'),
+                nombre: $(this).data('nombre'),
+                apellidos: $(this).data('apellidos'),
+                correo: $(this).data('correo'),
+                fechaNacimiento: $(this).data('fecha'),
+                rol: $(this).data('rol')
+            };
+            abrirModal(usuario);
         });
     });
 </script>
