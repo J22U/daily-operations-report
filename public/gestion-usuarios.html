@@ -68,7 +68,7 @@
             padding: 8px;
             border: 1px solid #4dd96d;
             text-align: center;
-            white-space: normal; /* ✅ Se cambió 'nowrap' a 'normal' */
+            white-space: normal;
         }
         
         th {
@@ -272,7 +272,23 @@
         `).join('');
 
         $('#tablaUsuarios tbody').html(tbody);
-        $('#tablaUsuarios').DataTable();
+        
+        // Inicialización de DataTables con la configuración corregida
+        $('#tablaUsuarios').DataTable({
+            scrollX: true, // Habilitar el scroll horizontal
+            autoWidth: false, // Desactivar el ajuste automático del ancho
+            // Define el ancho de las columnas manualmente para mayor control
+            columnDefs: [
+                { width: '25%', targets: 0 }, // Nombre
+                { width: '25%', targets: 1 }, // Correo
+                { width: '15%', targets: 2 }, // Rol
+                { width: '15%', targets: 3 }, // Estado
+                { width: '20%', targets: 4 }  // Acciones
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+        });
 
         $('#tablaUsuarios').on('click', '.toggle-btn', async function () {
             const id = this.dataset.id;
