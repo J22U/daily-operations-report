@@ -123,11 +123,15 @@
       color: white;
     }
 
-    /* ✅ Cursor de manito en el botón editar */
+    /* ✅ Botón editar fijo */
     .btn-editar {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: #6be079;
       border: none;
-      padding: 5px 10px;
       border-radius: 5px;
       cursor: pointer;
     }
@@ -223,9 +227,17 @@
         $('#tablaRutas tbody').html(filas);
 
         $('#tablaRutas').DataTable({
-          autoWidth: true,
-          scrollX: true,   // ✅ activamos scroll horizontal solo en la tabla
-          responsive: true,
+          autoWidth: false,  // ✅ evita descuadres
+          scrollX: true,     // ✅ scroll horizontal
+          responsive: false, // ✅ mejor que responsive para que cuadre todo
+          columnDefs: [
+            { width: "20%", targets: 0 },
+            { width: "25%", targets: 1 },
+            { width: "15%", targets: 2 },
+            { width: "15%", targets: 3 },
+            { width: "15%", targets: 4 },
+            { width: "10%", targets: 5 }
+          ],
           language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
           },
