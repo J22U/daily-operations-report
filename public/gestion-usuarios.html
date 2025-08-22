@@ -246,7 +246,7 @@
     }
 
     $(document).ready(async function () {
-        const res = await fetch('/api/usuarios-conductores');
+        const res = await fetch('/api/usuarios');
         const usuarios = await res.json();
 
         const tbody = usuarios.map(u => `

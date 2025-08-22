@@ -153,6 +153,7 @@
           <input type="password" id="password" name="password" required placeholder="Contraseña" />
           <i class="fas fa-lock"></i>
         </div>
+        <!-- 🔹 Ahora abre el modal para recuperar contraseña -->
         <a onclick="abrirModal()">¿Olvidaste tu contraseña?</a>
         <input type="submit" value="INICIAR SESIÓN">
         <input type="button" value="CREAR UNA CUENTA" onclick="registrarse()">
@@ -221,12 +222,51 @@
     }
   }
 
+  // 🔹 Modal para ingresar correo y solicitar recuperación
   function abrirModal() {
     Swal.fire({
-      icon: 'info',
-      title: 'Recuperación de contraseña',
-      text: 'Esta funcionalidad estará disponible pronto.',
-      confirmButtonColor: '#0632ad'
+      title: "Recuperar contraseña",
+      text: "Ingresa tu correo para enviarte un enlace de recuperación",
+      input: "email",
+      inputPlaceholder: "tu@correo.com",
+      showCancelButton: true,
+      confirmButtonText: "Enviar",
+      confirmButtonColor: "#0632ad",
+      cancelButtonText: "Cancelar",
+      preConfirm: async (correo) => {
+        if (!correo) {
+          Swal.showValidationMessage("⚠️ Debes ingresar un correo válido");
+          return false;
+        }
+
+        try {
+          const response = await fetch("/api/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo })
+          });
+          const data = await response.json();
+
+          if (!data.success) {
+            Swal.showValidationMessage(`❌ ${data.message || "Error al enviar el correo"}`);
+            return false;
+          }
+
+          return true;
+        } catch (err) {
+          Swal.showValidationMessage("❌ Error de conexión con el servidor");
+          return false;
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "¡Correo enviado!",
+          text: "Revisa tu bandeja de entrada para restablecer tu contraseña.",
+          confirmButtonColor: "#0632ad"
+        });
+      }
     });
   }
 </script>

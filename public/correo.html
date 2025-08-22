@@ -1,181 +1,115 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Correo - Plataforma de Transporte</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restablecer Contraseña</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root {
-      --primary: #0f2027;
-      --secondary: #203a43;
-      --accent: #6be079;
-      --text-light: #9bf39b;
-      --text-lighter: #cce7b3;
-    }
-
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
-      color: white;
+      background: linear-gradient(to right, #243b55, #141e30);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-
-    .volver-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background-color: var(--accent);
-      color: black;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: bold;
-      text-decoration: none;
-      transition: background 0.3s ease;
-      z-index: 10;
-    }
-
-    .volver-btn:hover {
-      background-color: #4dd96d;
-    }
-
-    header {
-      text-align: center;
-      padding: 40px 20px 20px;
-      background-color: rgba(0,0,0,0.3);
-      backdrop-filter: blur(5px);
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      color: var(--text-light);
-    }
-
     .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 30px 20px;
-    }
-
-    .message {
-      background: rgba(255, 255, 255, 0.1);
-      border-left: 5px solid var(--accent);
-      border-radius: 10px;
-      padding: 15px 20px;
-      margin-bottom: 20px;
-      backdrop-filter: blur(5px);
-    }
-
-    .message h3 {
-      margin-top: 0;
-      color: var(--accent);
-    }
-
-    .message p {
-      color: var(--text-lighter);
-      margin: 8px 0;
-    }
-
-    .reply-form {
-      margin-top: 30px;
       background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 20px;
-      backdrop-filter: blur(5px);
-      border-left: 4px solid var(--accent);
-    }
-
-    .reply-form h3 {
-      margin-top: 0;
-      color: var(--accent);
-    }
-
-    .reply-form textarea {
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 30px rgba(0,0,0,0.4);
       width: 100%;
-      height: 100px;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      resize: none;
-      margin-top: 10px;
-    }
-
-    .reply-form button {
-      margin-top: 10px;
-      background-color: var(--accent);
-      border: none;
-      color: black;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .reply-form button:hover {
-      background-color: #4dd96d;
-    }
-
-    footer {
+      max-width: 400px;
       text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: var(--text-lighter);
-      background-color: rgba(0,0,0,0.3);
-      backdrop-filter: blur(5px);
     }
-
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.8rem;
-      }
-
-      .volver-btn {
-        font-size: 13px;
-        padding: 8px 12px;
-      }
+    h2 {
+      margin-bottom: 20px;
+      color: #9bf39b;
+    }
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff11;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #0632ad;
+      border: none;
+      border-radius: 25px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0a59cf;
     }
   </style>
 </head>
 <body>
 
-  <a href="menu-conductor.html" class="volver-btn"><i class="fas fa-arrow-left"></i> Volver</a>
-
-  <header>
-    <h1><i class="fas fa-envelope"></i> Correo Interno</h1>
-    <p>Mensajes y notificaciones de tu supervisor</p>
-  </header>
-
-  <div class="container">
-
-    <!-- Ejemplo de mensajes -->
-    <div class="message">
-      <h3>Supervisor Pedro Gómez</h3>
-      <p><strong>Asunto:</strong> Revisión técnica obligatoria</p>
-      <p>Recuerda que tu vehículo debe pasar revisión técnica esta semana. Programa la cita lo antes posible.</p>
-    </div>
-
-    <div class="message">
-      <h3>Supervisor Laura Rodríguez</h3>
-      <p><strong>Asunto:</strong> Felicitaciones</p>
-      <p>¡Excelente trabajo esta semana! Has cumplido con todos los protocolos y entregas.</p>
-    </div>
-
-    <!-- Formulario de respuesta -->
-    <div class="reply-form">
-      <h3>Responder mensaje</h3>
-      <textarea placeholder="Escribe tu respuesta aquí..."></textarea>
-      <button>Enviar</button>
-    </div>
-
+<div class="container">
+  <h2>Restablecer Contraseña</h2>
+  <div class="input-group">
+    <input type="password" id="password" placeholder="Nueva contraseña" required>
   </div>
+  <div class="input-group">
+    <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required>
+  </div>
+  <button onclick="resetPassword()">Cambiar Contraseña</button>
+</div>
 
-  <footer>
-    <p>© 2025 Plataforma de Transporte - Correo Interno</p>
-  </footer>
+<script>
+  async function resetPassword() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (!password || !confirmPassword) {
+      return Swal.fire("Error", "Completa todos los campos", "error");
+    }
+    if (password !== confirmPassword) {
+      return Swal.fire("Error", "Las contraseñas no coinciden", "error");
+    }
+
+    try {
+      const response = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire("Éxito", "Contraseña actualizada correctamente", "success")
+          .then(() => { window.location.href = "login.html"; });
+      } else {
+        Swal.fire("Error", data.message || "No se pudo actualizar la contraseña", "error");
+      }
+    } catch (error) {
+      console.error("❌ Error:", error);
+      Swal.fire("Error", "Error en el servidor", "error");
+    }
+  }
+</script>
 
 </body>
 </html>

@@ -34,11 +34,11 @@ app.get('/api/usuario', (req, res) => {
   }
 });
 
-app.get('/api/usuarios-conductores', async (req, res) => {
+app.get('/api/usuarios', async (req, res) => {
   try {
     const pool = await poolConnect;
     const result = await pool.request()
-      .query("SELECT * FROM USUARIOS WHERE rol = 'conductor'");
+      .query("SELECT * FROM USUARIOS WHERE rol IN ('conductor','supervisor')");
     res.json(result.recordset);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener usuarios' });
@@ -445,6 +445,118 @@ app.get('/usuarios', async (req, res) => {
     res.status(500).send("Error del servidor al listar usuarios");
   }
 });
+
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+
+// ✅ Endpoint para solicitar recuperación de contraseña
+app.post("/api/forgot-password", async (req, res) => {
+  const { correo } = req.body;
+
+  if (!correo) {
+    return res.status(400).json({ success: false, message: "El correo es obligatorio" });
+  }
+
+  try {
+    // Buscar usuario
+    const result = await pool.request()
+      .input("correo", sql.VarChar, correo)
+      .query("SELECT * FROM Usuarios WHERE correo = @correo");
+
+    if (result.recordset.length === 0) {
+      return res.json({ success: false, message: "No existe una cuenta con ese correo" });
+    }
+
+    const user = result.recordset[0];
+
+    // 🔹 Generar token aleatorio
+    const token = crypto.randomBytes(32).toString("hex");
+    const expDate = new Date();
+    expDate.setHours(expDate.getHours() + 1); // expira en 1 hora
+
+    // Guardar token en la BD
+    await pool.request()
+      .input("id", sql.Int, user.IdU)
+      .input("token", sql.VarChar, token)
+      .input("exp", sql.DateTime, expDate)
+      .query(`
+        UPDATE Usuarios 
+        SET resetToken = @token, resetTokenExpiry = @exp
+        WHERE IdU = @id
+      `);
+
+    // 🔹 Configuración de transporte de correo
+    const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // ⚠️ importante, false para TLS
+  auth: {
+    user: "tu_correo@gmail.com",
+    pass: "tu_contraseña_app" // debe ser contraseña de aplicación, no tu clave normal
+  }
+});
+
+    // 🔹 Enlace de recuperación
+    const resetUrl = `http://localhost:3000/reset-password.html?token=${token}`;
+
+    // 🔹 Contenido del correo
+    await transporter.sendMail({
+      from: '"Soporte Plataforma" <tu_correo@gmail.com>',
+      to: user.correo,
+      subject: "Recuperación de contraseña",
+      html: `
+        <h2>Hola ${user.nombre}</h2>
+        <p>Has solicitado restablecer tu contraseña.</p>
+        <p>Haz clic en el siguiente enlace para continuar:</p>
+        <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+        <p><b>Este enlace expirará en 1 hora.</b></p>
+      `
+    });
+
+    res.json({ success: true, message: "📧 Correo enviado. Revisa tu bandeja de entrada" });
+
+  } catch (err) {
+    console.error("❌ Error en forgot-password:", err);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+});
+
+// ✅ Endpoint para resetear contraseña
+app.post("/api/reset-password", async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ success: false, message: "Faltan datos" });
+  }
+
+  try {
+    const result = await pool.request()
+      .input("token", sql.VarChar, token)
+      .query("SELECT * FROM Usuarios WHERE resetToken = @token AND resetTokenExpiry > GETDATE()");
+
+    if (result.recordset.length === 0) {
+      return res.json({ success: false, message: "Token inválido o expirado" });
+    }
+
+    const user = result.recordset[0];
+
+    // 🔹 Actualizar contraseña y limpiar token
+    await pool.request()
+      .input("id", sql.Int, user.IdU)
+      .input("password", sql.VarChar, password)
+      .query(`
+        UPDATE Usuarios 
+        SET contraseña = @password, resetToken = NULL, resetTokenExpiry = NULL
+        WHERE IdU = @id
+      `);
+
+    res.json({ success: true, message: "Contraseña actualizada correctamente" });
+  } catch (err) {
+    console.error("❌ Error en reset-password:", err);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+});
+
 
 // Iniciar servidor
 app.listen(PORT, () => {
