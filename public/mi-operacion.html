@@ -160,7 +160,7 @@
             <tr>
               <td>${r.ruta || ''}</td>
               <td>${r.horaSalida || ''}</td>
-              <td>${new Date(r.fecha).toLocaleDateString()}</td>
+              <td>${r.fecha.split('T')[0]}</td>
               <td>${r.notasAdicionales || 'Sin notas'}</td>
             </tr>
           `;
